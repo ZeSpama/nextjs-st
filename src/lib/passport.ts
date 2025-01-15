@@ -21,7 +21,7 @@ passport.use(new SteamStrategy({
     returnURL: `${process.env.NEXT_PUBLIC_BASE_URL}/api/auth/return`,
     realm: `${process.env.NEXT_PUBLIC_BASE_URL}`,
     apiKey: process.env.STEAM_API_KEY as string,
-}, (_identifier, profile, done) => {
+}, (_identifier: string, profile: Profile, done: DoneCallback) => {
     return done(null, profile);
 }));
 console.log("RETURN URL:", `${process.env.NEXT_PUBLIC_BASE_URL}/api/auth/return`);
