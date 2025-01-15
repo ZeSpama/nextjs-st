@@ -1,4 +1,4 @@
-import passport, { Profile, DoneCallback } from "passport";
+import passport, { Profile } from "passport";
 import { Strategy as SteamStrategy } from "passport-steam";
 
 export interface SteamProfile {
@@ -17,11 +17,12 @@ passport.deserializeUser((obj: SteamProfile, done) => {
     done(null, obj);
 });
 
+// Alteração na definição de tipo do done
 passport.use(new SteamStrategy({
     returnURL: `${process.env.NEXT_PUBLIC_BASE_URL}/api/auth/return`,
     realm: `${process.env.NEXT_PUBLIC_BASE_URL}`,
     apiKey: process.env.STEAM_API_KEY as string,
-}, (_identifier: string, profile: Profile, done: DoneCallback) => {
+}, (_identifier: string, profile: Profile, done: (error: any, user?: any) => void) => {
     return done(null, profile);
 }));
 
