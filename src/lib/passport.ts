@@ -1,4 +1,4 @@
-import passport from "passport";
+import passport, { Profile, DoneCallback } from "passport";
 import { Strategy as SteamStrategy } from "passport-steam";
 
 export interface SteamProfile {
@@ -24,10 +24,9 @@ passport.use(new SteamStrategy({
 }, (_identifier: string, profile: Profile, done: DoneCallback) => {
     return done(null, profile);
 }));
+
 console.log("RETURN URL:", `${process.env.NEXT_PUBLIC_BASE_URL}/api/auth/return`);
 console.log("REALM:", `${process.env.NEXT_PUBLIC_BASE_URL}`);
 console.log("STEAM API KEY:", process.env.STEAM_API_KEY);
-
-
 
 export default passport;
