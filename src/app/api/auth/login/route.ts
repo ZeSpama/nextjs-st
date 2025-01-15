@@ -1,14 +1,18 @@
 import { NextResponse } from "next/server";
+import passport from "@/lib/passport";
 
-// Rota de Login - Redireciona para o Steam
-export async function GET() {
-    const steamLoginUrl = new URL("https://steamcommunity.com/openid/login");
-    steamLoginUrl.searchParams.set("openid.ns", "http://specs.openid.net/auth/2.0");
-    steamLoginUrl.searchParams.set("openid.mode", "checkid_setup");
-    steamLoginUrl.searchParams.set("openid.return_to", `${process.env.NEXT_PUBLIC_BASE_URL}/api/auth/return`);
-    steamLoginUrl.searchParams.set("openid.realm", `${process.env.NEXT_PUBLIC_BASE_URL}`);
-    steamLoginUrl.searchParams.set("openid.identity", "http://specs.openid.net/auth/2.0/identifier_select");
-    steamLoginUrl.searchParams.set("openid.claimed_id", "http://specs.openid.net/auth/2.0/identifier_select");
-
-    return NextResponse.redirect(steamLoginUrl.toString());
+export async function GET(request: Request) {
+    return new Promise((resolve) => {
+        passport.authenticate("steam", { session: false })(request, {}, (err: Error | null, user: Express.User | false) => {
+            if (err || !user) {
+                console.error("Erro de autenticação:", err);
+                return resolve(NextResponse.redirect(new URL("/?error=auth_failed", process.env.NEXT_PUBLIC_BASE_URL)));
+            }
+            
+            
+            // Redirect to the return route
+            return resolve(NextResponse.redirect(new URL("/api/auth/return", process.env.NEXT_PUBLIC_BASE_URL)));
+        });
+    });
 }
+
