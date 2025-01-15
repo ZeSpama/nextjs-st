@@ -34,6 +34,7 @@ passport.use(new SteamStrategy({
 }));
 
 
+
 console.log("RETURN URL:", `${process.env.NEXT_PUBLIC_BASE_URL}/api/auth/return`);
 console.log("REALM:", `${process.env.NEXT_PUBLIC_BASE_URL}`);
 console.log("STEAM API KEY:", process.env.STEAM_API_KEY);
