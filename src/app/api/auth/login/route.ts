@@ -1,18 +1,12 @@
-import { NextResponse } from "next/server";
-import passport from "@/lib/passport";
+import { NextResponse } from 'next/server';
 
-export async function GET(request: Request) {
-    return new Promise((resolve) => {
-        passport.authenticate("steam", { session: false })(request, {}, (err: Error | null, user: Express.User | false) => {
-            if (err || !user) {
-                console.error("Erro de autenticação:", err);
-                return resolve(NextResponse.redirect(new URL("/?error=auth_failed", process.env.NEXT_PUBLIC_BASE_URL)));
-            }
-            
-            
-            // Redirect to the return route
-            return resolve(NextResponse.redirect(new URL("/api/auth/return", process.env.NEXT_PUBLIC_BASE_URL)));
-        });
-    });
+export async function GET() {
+    try {
+        // Sua lógica de autenticação ou qualquer outra lógica
+        // Exemplo de resposta bem-sucedida
+        return NextResponse.json({ message: "Authentication successful!" });
+    } catch (error) {
+        // Em caso de erro, retorne uma resposta de erro
+        return NextResponse.error();
+    }
 }
-
