@@ -1,36 +1,28 @@
 import passport from "passport";
-import passportSteam from "passport-steam";
-
-const SteamStrategy = passportSteam.Strategy;
-
+import { Strategy as SteamStrategy } from "passport-steam";
 
 export interface SteamProfile {
-    displayName: string,
-    id: string,
-    identifier: string,
-    photos: Image,
-    provider: string
+    displayName: string;
+    id: string;
+    identifier: string;
+    photos: { value: string }[];
+    provider: string;
 }
 
-interface Image {
-    value: string,
-}
-passport.serializeUser(function(user, done) {
+passport.serializeUser((user, done) => {
     done(null, user);
 });
 
-passport.deserializeUser(function(obj: SteamProfile, done) {
+passport.deserializeUser((obj: SteamProfile, done) => {
     done(null, obj);
 });
 
-
 passport.use(new SteamStrategy({
-	returnURL: `${process.env.DOMAIN}/api/auth/return`,
-	realm: `${process.env.DOMAIN}`,
-	apiKey: `${process.env.STEAM_API_KEY}`
-}, (_: string, profile: SteamProfile, done: (a: null | string,b: SteamProfile) => typeof done) => {
-	// Fetch any more information to populate
-	return done(null, profile);
+    returnURL: `${process.env.NEXT_PUBLIC_BASE_URL}/api/auth/return`,
+    realm: `${process.env.NEXT_PUBLIC_BASE_URL}`,
+    apiKey: process.env.STEAM_API_KEY as string
+}, (_identifier: string, profile: SteamProfile, done: (error: any, user?: any) => void) => {
+    return done(null, profile);
 }));
 
 export default passport;

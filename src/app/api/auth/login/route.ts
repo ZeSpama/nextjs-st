@@ -1,24 +1,16 @@
 import { NextResponse } from "next/server";
 import passport from "@/lib/passport";
-import router from "@/lib/router";
 
-export async function GET(req: Request) {
-    try {
-        // Simule a lógica de autenticação usando Passport
-        const user = await new Promise((resolve, reject) => {
-            router.use(passport.authenticate("steam"), (req: any, res: any) => {
-                if (req.user) resolve(req.user);
-                else reject("Authentication failed");
-            });
+export async function GET(request: Request) {
+    return new Promise((resolve) => {
+        passport.authenticate("steam", { session: false })(request, {}, (err, user) => {
+            if (err || !user) {
+                return resolve(NextResponse.redirect(new URL("/api/auth/login?error=failed", process.env.NEXT_PUBLIC_BASE_URL)));
+            }
+            
+            // Redirecionar para a rota de retorno
+            return resolve(NextResponse.redirect(new URL("/api/auth/return", process.env.NEXT_PUBLIC_BASE_URL)));
         });
-
-        if (user) {
-            return NextResponse.redirect("/"); // Redirecione após autenticar
-        } else {
-            return NextResponse.redirect("/?error=failed");
-        }
-    } catch (error) {
-        console.error("Error during login:", error);
-        return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
-    }
+    });
 }
+

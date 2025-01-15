@@ -1,20 +1,22 @@
 import { NextResponse } from "next/server";
-import { NextRequest } from "next/server";
-import router from "@/lib/router";
+import { cookies } from "next/headers";
+import { decrypt } from "@/lib/encryption"; // Você precisará implementar esta função
 
-export async function GET(req: NextRequest) {
+export async function GET() {
+    const steamUserCookie = cookies().get("steamUser");
+    
+    if (!steamUserCookie) {
+        return NextResponse.json({ user: null }, { status: 401 });
+    }
+    
     try {
-        // Ajuste para capturar informações do usuário
-        const user = await router.run(req as any, {} as any);
+        const decryptedUser = decrypt(steamUserCookie.value);
+        const user = JSON.parse(decryptedUser);
         
-        // Se `router.run` retorna `void`, adapte para obter o usuário
-        if (typeof user === 'undefined') {
-            return NextResponse.json({ user: null });
-        }
-
         return NextResponse.json({ user });
     } catch (error) {
-        console.error("Error fetching user:", error);
-        return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+        console.error("Error decrypting user data:", error);
+        return NextResponse.json({ user: null }, { status: 401 });
     }
 }
+

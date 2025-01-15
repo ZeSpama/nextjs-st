@@ -1,32 +1,40 @@
 import Link from "next/link";
+import { cookies } from "next/headers";
+import { decrypt } from "@/lib/encryption"; // Você precisará implementar esta função
 
-// Função para obter o usuário autenticado no lado do servidor
-async function getUser(): Promise<{ user: { id: string } | null }> {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/auth/user`, { cache: "no-store" });
-    if (!response.ok) return { user: null }; // Retorna null se não estiver autenticado
-    const data = await response.json();
-    return { user: data.user || null };
+async function getUser() {
+    const steamUserCookie = cookies().get("steamUser");
+    if (!steamUserCookie) return null;
+
+    try {
+        const decryptedUser = decrypt(steamUserCookie.value);
+        return JSON.parse(decryptedUser);
+    } catch (error) {
+        console.error("Error decrypting user data:", error);
+        return null;
+    }
 }
 
 export default async function Home() {
-    const { user } = await getUser(); // Chama a API para obter o usuário
+    const user = await getUser();
 
     return (
         <div style={{ textAlign: "center" }}>
             {user ? (
                 <div>
-                    Welcome back!
+                    Welcome back, {user.displayName}!
                     <br />
-                    From logging in, your SteamID is {user.id}.
+                    Your SteamID is {user.id}.
                     <br />
                     <Link href="/api/auth/logout">Logout</Link>
                 </div>
             ) : (
                 <div>
                     Welcome!<br />
-                    <Link href="/api/auth/login">Login</Link>
+                    <Link href="/api/auth/login">Login with Steam</Link>
                 </div>
             )}
         </div>
     );
 }
+

@@ -1,18 +1,22 @@
 import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
-export async function middleware(req: Request) {
-    const { pathname } = new URL(req.url);
-    if (pathname.startsWith("/api/auth") || pathname === "/") return NextResponse.next();
+export function middleware(request: NextRequest) {
+    const { pathname } = request.nextUrl;
+    
+    if (pathname === "/" || pathname.startsWith("/api/auth")) {
+        return NextResponse.next();
+    }
 
-    // Exemplo: Redirecionar se o usuário não está autenticado
-    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/auth/user`, { cache: "no-store" });
-    if (res.status === 401) {
-        return NextResponse.redirect(new URL("/api/auth/login", req.url));
+    const steamUser = request.cookies.get("steamUser");
+    if (!steamUser) {
+        return NextResponse.redirect(new URL("/api/auth/login", process.env.NEXT_PUBLIC_BASE_URL));
     }
 
     return NextResponse.next();
 }
 
 export const config = {
-    matcher: ["/((?!api/auth).*)"], // Proteja todas as rotas, exceto APIs públicas
+    matcher: ["/((?!_next/static|favicon.ico).*)"],
 };
+
