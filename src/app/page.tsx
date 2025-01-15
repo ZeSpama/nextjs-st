@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { cookies } from "next/headers";
-import { decrypt } from "@/lib/encryption"; // Você precisará implementar esta função
+import { decrypt } from "@/lib/encryption";
 
 async function getUser() {
-    const steamUserCookie = cookies().get("steamUser");
+    const cookieStore = await cookies();
+    const steamUserCookie = await cookieStore.get("steamUser");
     if (!steamUserCookie) return null;
 
     try {

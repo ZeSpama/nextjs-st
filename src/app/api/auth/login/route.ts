@@ -1,16 +1,14 @@
 import { NextResponse } from "next/server";
-import passport from "@/lib/passport";
 
-export async function GET(request: Request) {
-    return new Promise((resolve) => {
-        passport.authenticate("steam", { session: false })(request, {}, (err, user) => {
-            if (err || !user) {
-                return resolve(NextResponse.redirect(new URL("/api/auth/login?error=failed", process.env.NEXT_PUBLIC_BASE_URL)));
-            }
-            
-            // Redirecionar para a rota de retorno
-            return resolve(NextResponse.redirect(new URL("/api/auth/return", process.env.NEXT_PUBLIC_BASE_URL)));
-        });
-    });
+// Rota de Login - Redireciona para o Steam
+export async function GET() {
+    const steamLoginUrl = new URL("https://steamcommunity.com/openid/login");
+    steamLoginUrl.searchParams.set("openid.ns", "http://specs.openid.net/auth/2.0");
+    steamLoginUrl.searchParams.set("openid.mode", "checkid_setup");
+    steamLoginUrl.searchParams.set("openid.return_to", `${process.env.NEXT_PUBLIC_BASE_URL}/api/auth/return`);
+    steamLoginUrl.searchParams.set("openid.realm", `${process.env.NEXT_PUBLIC_BASE_URL}`);
+    steamLoginUrl.searchParams.set("openid.identity", "http://specs.openid.net/auth/2.0/identifier_select");
+    steamLoginUrl.searchParams.set("openid.claimed_id", "http://specs.openid.net/auth/2.0/identifier_select");
+
+    return NextResponse.redirect(steamLoginUrl.toString());
 }
-
